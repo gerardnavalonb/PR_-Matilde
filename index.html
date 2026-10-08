@@ -504,7 +504,7 @@
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyNAkVgif0px0hVju2gREoqpkmH7UCpsP4htQlZ5HZGzPvc2eAmonPhTfVsJFDjZuDl/exec"; 
 
     // Contrasenya de l'administradora (configurable)
-    const ADMIN_PASSWORD = "admin_recerca_2026";
+    const ADMIN_PASSWORD = "matilde2025";
 
     // Textos de les 18 preguntes
     const PREGUNTES_TEXT = {
@@ -634,14 +634,13 @@
 
         try {
           if (!GOOGLE_SCRIPT_URL) {
-            // Si encara no ha posat l'enllaç de Google Script, ho simulem a nivell local perquè pugui provar
             console.warn("GOOGLE_SCRIPT_URL està buit. Segueix la GUIA per posar el teu enllaç de Google Sheets!");
             guardarRespostaLocal(answers);
           } else {
             await fetch(GOOGLE_SCRIPT_URL, {
               method: 'POST',
               mode: 'no-cors',
-              headers: { 'Content-Type': 'application/json' },
+              headers: { 'Content-Type': 'text/plain;charset=utf-8' },
               body: JSON.stringify(answers)
             });
             guardarRespostaLocal(answers);
@@ -686,7 +685,7 @@
       });
 
       // Botó Sincronitzar
-      document.getElementById('btn-sync').addEventListener('click', () => carregarDadesGoogleSheets());
+      document.getElementById('btn-sync').addEventListener('click', () => carregarDadesGoogleSheets(true));
 
       // Exportacions
       document.getElementById('btn-export-csv').addEventListener('click', () => exportarCSV());
@@ -729,21 +728,28 @@
     }
 
     // Carregar dades des de Google Sheets
-    async function carregarDadesGoogleSheets() {
+    async function carregarDadesGoogleSheets(manual = false) {
       const btn = document.getElementById('btn-sync');
       btn.disabled = true;
       btn.textContent = "Carregant dades...";
 
       try {
         if (GOOGLE_SCRIPT_URL) {
-          const res = await fetch(GOOGLE_SCRIPT_URL);
+          // Afegim timestamp t per evitar que el navegador del mòbil guardi la resposta en memòria cau
+          const urlAntiCache = GOOGLE_SCRIPT_URL + (GOOGLE_SCRIPT_URL.includes('?') ? '&' : '?') + 't=' + Date.now();
+          const res = await fetch(urlAntiCache);
           if (res.ok) {
             const data = await res.json();
-            if (Array.isArray(data) && data.length > 0) {
+            if (Array.isArray(data)) {
               dadesRecerca = data;
+              if (manual) {
+                alert(`S'han sincronitzat ${data.length} respostes des de Google Sheets!`);
+              }
             } else {
               dadesRecerca = JSON.parse(localStorage.getItem('tdr_respostes_local') || '[]');
             }
+          } else {
+            throw new Error("Resposta no OK del servidor: " + res.status);
           }
         } else {
           dadesRecerca = JSON.parse(localStorage.getItem('tdr_respostes_local') || '[]');
@@ -751,6 +757,9 @@
       } catch (err) {
         console.warn("No s'ha pogut obtenir directament de Google Script, mostrant dades de còpia:", err);
         dadesRecerca = JSON.parse(localStorage.getItem('tdr_respostes_local') || '[]');
+        if (manual) {
+          alert("No s'ha pogut connectar amb Google Sheets. Comprova la connexió a internet.");
+        }
       } finally {
         btn.disabled = false;
         btn.textContent = "🔄 Sincronitzar dades de Google Sheets";
