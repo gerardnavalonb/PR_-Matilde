@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Personalitat i dependència emocional | Treball de Recerca</title>
+  <!-- Chart.js per a gràfics en línia a GitHub Pages -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-light: #eff6ff;
+      --secondary: #0f172a;
+      --accent: #4f46e5;
+      --bg-main: #f8fafc;
+      --bg-card: #ffffff;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --border-focus: #3b82f6;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+      --radius: 12px;
+      --radius-sm: 8px;
+      --font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font-family); background-color: var(--bg-main); color: var(--text-main); line-height: 1.6; min-height: 100vh; display: flex; flex-direction: column; }
+
+    /* Capçalera */
+    header.app-header { background: var(--bg-card); border-bottom: 1px solid var(--border); padding: 1rem 1.5rem; }
+    .header-container { max-width: 1100px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+    .brand-title { font-size: 1.2rem; font-weight: 700; color: var(--secondary); text-decoration: none; cursor: pointer; }
+    .badge-academic { background-color: var(--primary-light); color: var(--primary); font-size: 0.75rem; font-weight: 600; padding: 0.25rem 0.6rem; border-radius: 9999px; }
+
+    /* Contenidor */
+    main.container { max-width: 860px; margin: 2rem auto; padding: 0 1rem; flex: 1; width: 100%; }
+    main.container-wide { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; flex: 1; width: 100%; }
+
+    /* Targetes */
+    .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 2rem; box-shadow: var(--shadow); margin-bottom: 2rem; }
+    .card-header { margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem; }
+    .card-title { font-size: 1.4rem; font-weight: 700; color: var(--secondary); }
+    .card-subtitle { color: var(--text-muted); font-size: 0.95rem; margin-top: 0.25rem; }
+
+    /* Botons */
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; font-size: 1rem; font-weight: 600; padding: 0.75rem 1.5rem; border-radius: var(--radius-sm); border: none; cursor: pointer; transition: all 0.2s ease; text-decoration: none; text-align: center; }
+    .btn-primary { background-color: var(--primary); color: #ffffff; }
+    .btn-primary:hover { background-color: var(--primary-hover); transform: translateY(-1px); }
+    .btn-secondary { background-color: #f1f5f9; color: var(--secondary); border: 1px solid var(--border); }
+    .btn-secondary:hover { background-color: #e2e8f0; }
+    .btn-danger { background-color: var(--danger); color: #ffffff; }
+    .btn-danger:hover { background-color: #dc2626; }
+    .btn-block { width: 100%; }
+    .btn-group { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+
+    /* Avisos acadèmics */
+    .academic-notice { background-color: #eff6ff; border-left: 4px solid var(--primary); padding: 1.25rem; border-radius: var(--radius-sm); margin-bottom: 1.5rem; font-size: 0.95rem; color: #1e3a8a; }
+    .academic-warning { background-color: #fffbeb; border-left: 4px solid var(--warning); padding: 1.25rem; border-radius: var(--radius-sm); margin-bottom: 1.5rem; font-size: 0.95rem; color: #92400e; }
+
+    /* Enquesta */
+    .survey-section-title { background: #f1f5f9; padding: 0.75rem 1.25rem; border-radius: var(--radius-sm); font-size: 1.15rem; font-weight: 700; color: var(--secondary); margin: 2rem 0 1rem 0; }
+    .question-card { background: #ffffff; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1.5rem; margin-bottom: 1.25rem; }
+    .question-card.highlight-missing { border: 2px solid var(--danger); background-color: #fef2f2; box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.15); }
+    .question-text { font-size: 1.05rem; font-weight: 600; color: var(--text-main); margin-bottom: 1.25rem; }
+    .question-number { color: var(--primary); font-weight: 700; margin-right: 0.4rem; }
+
+    /* Likert 1-5 */
+    .likert-options { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.5rem; }
+    @media (max-width: 640px) { .likert-options { grid-template-columns: 1fr; gap: 0.4rem; } }
+    .likert-option { position: relative; }
+    .likert-option input[type="radio"] { position: absolute; opacity: 0; width: 0; height: 0; }
+    .likert-option label { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.85rem 0.5rem; border: 2px solid var(--border); border-radius: var(--radius-sm); background: #ffffff; cursor: pointer; transition: all 0.2s ease; min-height: 85px; text-align: center; font-size: 0.82rem; }
+    @media (max-width: 640px) { .likert-option label { flex-direction: row; justify-content: flex-start; padding: 0.75rem 1rem; min-height: auto; font-size: 0.95rem; gap: 0.75rem; } }
+    .likert-num { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.25rem; color: var(--text-muted); }
+    .likert-option input[type="radio"]:checked + label { border-color: var(--primary); background-color: var(--primary-light); color: var(--primary); font-weight: 600; box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2); }
+    .likert-option input[type="radio"]:checked + label .likert-num { color: var(--primary); }
+
+    /* Barra de progrés */
+    .progress-container { position: sticky; top: 0; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); z-index: 50; }
+    .progress-header { display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.4rem; }
+    .progress-bar-bg { width: 100%; height: 8px; background: #e2e8f0; border-radius: 9999px; overflow: hidden; }
+    .progress-bar-fill { height: 100%; width: 0%; background: var(--primary); transition: width 0.3s ease; }
+
+    /* Taules i gràfics */
+    .table-responsive { width: 100%; overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius-sm); background: #ffffff; margin-bottom: 1.5rem; }
+    table.academic-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; text-align: left; }
+    table.academic-table th { background: #f8fafc; padding: 0.75rem 1rem; font-weight: 600; color: var(--text-muted); border-bottom: 1px solid var(--border); white-space: nowrap; }
+    table.academic-table td { padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); color: var(--text-main); white-space: nowrap; }
+    .charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+    @media (max-width: 640px) { .charts-grid { grid-template-columns: 1fr; } }
+    .chart-card { background: #ffffff; border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; box-shadow: var(--shadow); }
+    .chart-container { position: relative; height: 320px; width: 100%; }
+
+    /* Alertes */
+    .alert-error { background-color: #fef2f2; border-left: 4px solid var(--danger); padding: 1rem; border-radius: var(--radius-sm); color: #991b1b; margin-bottom: 1.5rem; }
+    .alert-success { background-color: #ecfdf5; border-left: 4px solid var(--success); padding: 1rem; border-radius: var(--radius-sm); color: #065f46; margin-bottom: 1.5rem; }
+
+    /* Modal */
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center; padding: 1rem; }
+    .modal-overlay.active { display: flex; }
+    .modal-box { background: #ffffff; border-radius: var(--radius); max-width: 480px; width: 100%; padding: 2rem; box-shadow: var(--shadow-lg); }
+
+    .form-input { width: 100%; padding: 0.75rem 1rem; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 1rem; font-family: inherit; }
+    footer.app-footer { margin-top: auto; background: #ffffff; border-top: 1px solid var(--border); padding: 1.5rem; text-align: center; font-size: 0.85rem; color: var(--text-muted); }
+  </style>
+</head>
+<body>
+
+  <!-- Capçalera principal -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand-title" onclick="navegarA('inici')">
+        Personalitat i dependència emocional
+      </div>
+      <span class="badge-academic">Treball de Recerca · 2n Batxillerat</span>
+    </div>
+  </header>
+
+  <!-- ============================================== -->
+  <!-- VISTA 1: PÀGINA INICIAL -->
+  <!-- ============================================== -->
+  <main class="container" id="vista-inici">
+    <div class="card" style="text-align: center; padding: 3rem 1.5rem;">
+      <h1 style="font-size: 2.3rem; font-weight: 800; color: var(--secondary); margin-bottom: 1rem; line-height: 1.2;">
+        Personalitat i dependència emocional
+      </h1>
+      <p style="font-size: 1.15rem; color: var(--text-muted); max-width: 650px; margin: 0 auto 2.5rem auto;">
+        Estudi exploratori sobre la possible relació entre els trets de personalitat del model dels Cinc Grans (OCEAN) i la dependència emocional.
+      </p>
+
+      <div class="btn-group" style="justify-content: center; gap: 1.25rem; margin-bottom: 2.5rem;">
+        <button class="btn btn-primary" onclick="navegarA('enquesta')" style="font-size: 1.1rem; padding: 1rem 2rem; min-width: 240px;">
+          Respondre l'enquesta
+        </button>
+        <button class="btn btn-secondary" onclick="navegarA('login')" style="font-size: 1.1rem; padding: 1rem 2rem; min-width: 240px;">
+          Accés privat de l'administradora
+        </button>
+      </div>
+
+      <div class="academic-notice" style="text-align: left; max-width: 650px; margin: 0 auto;">
+        <strong>Nota metodològica important:</strong> Aquesta és una enquesta exploratòria creada específicament per a aquest treball de recerca escolar. No és un test psicològic validat clínicament i no s'ha d'utilitzar per diagnosticar dependència emocional ni cap altre trastorn.
+      </div>
+    </div>
+  </main>
+
+  <!-- ============================================== -->
+  <!-- VISTA 2: ENQUESTA PÚBLICA -->
+  <!-- ============================================== -->
+  <div id="vista-enquesta" style="display: none;">
+    <!-- Indicador de progrés mòbil -->
+    <div class="progress-container">
+      <div class="header-container" style="padding: 0;">
+        <div style="width: 100%;">
+          <div class="progress-header">
+            <span id="progress-text">Progrés: 0 de 18 preguntes contestades</span>
+            <span id="progress-percentage">0%</span>
+          </div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" id="progress-fill"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <main class="container">
+      <div class="card" id="card-formulari">
+        <div class="card-header">
+          <h1 class="card-title">Enquesta d'investigació</h1>
+          <p class="card-subtitle">Treball de recerca de segon de batxillerat</p>
+        </div>
+
+        <!-- Text literal obligatori (Secció 2) -->
+        <div class="academic-notice">
+          <p>Aquesta enquesta forma part d'un treball de recerca sobre la relació entre la personalitat i la dependència emocional. És anònima i les respostes s'utilitzaran únicament amb finalitats acadèmiques. La participació és voluntària. No hi ha respostes correctes ni incorrectes. Respon amb sinceritat.</p>
+        </div>
+
+        <p style="font-size: 0.95rem; color: var(--text-muted); margin-bottom: 1.5rem;">
+          Per a cadascuna de les 18 preguntes següents, tria el grau d'acord que millor et defineixi (escala de l'1 al 5). Totes les preguntes són obligatòries.
+        </p>
+
+        <div id="enquesta-alert" class="alert-error" style="display: none;"></div>
+
+        <form id="form-enquesta" novalidate>
+          <!-- BLOC 1: OCEAN -->
+          <div class="survey-section-title">BLOC 1 — PERSONALITAT (MODEL OCEAN)</div>
+
+          <h3 style="color: var(--primary); font-size: 1.05rem; margin: 1.25rem 0 0.75rem 0;">Obertura a l'experiència</h3>
+          <div class="question-card" id="qcard-1"><div class="question-text"><span class="question-number">1.</span> M'agrada provar activitats noves i tenir experiències diferents.</div><div class="likert-options" data-q="1"></div></div>
+          <div class="question-card" id="qcard-2"><div class="question-text"><span class="question-number">2.</span> M'interessa conèixer idees i maneres de pensar diferents de les meves.</div><div class="likert-options" data-q="2"></div></div>
+
+          <h3 style="color: var(--primary); font-size: 1.05rem; margin: 1.5rem 0 0.75rem 0;">Responsabilitat</h3>
+          <div class="question-card" id="qcard-3"><div class="question-text"><span class="question-number">3.</span> Acostumo a organitzar les meves tasques abans de fer-les.</div><div class="likert-options" data-q="3"></div></div>
+          <div class="question-card" id="qcard-4"><div class="question-text"><span class="question-number">4.</span> Compleixo les meves obligacions encara que no em vinguin de gust.</div><div class="likert-options" data-q="4"></div></div>
+
+          <h3 style="color: var(--primary); font-size: 1.05rem; margin: 1.5rem 0 0.75rem 0;">Extraversió</h3>
+          <div class="question-card" id="qcard-5"><div class="question-text"><span class="question-number">5.</span> Em sento còmode parlant amb persones que acabo de conèixer.</div><div class="likert-options" data-q="5"></div></div>
+          <div class="question-card" id="qcard-6"><div class="question-text"><span class="question-number">6.</span> M'agrada participar en activitats amb moltes persones.</div><div class="likert-options" data-q="6"></div></div>
+
+          <h3 style="color: var(--primary); font-size: 1.05rem; margin: 1.5rem 0 0.75rem 0;">Amabilitat</h3>
+          <div class="question-card" id="qcard-7"><div class="question-text"><span class="question-number">7.</span> Intento entendre els sentiments de les altres persones.</div><div class="likert-options" data-q="7"></div></div>
+          <div class="question-card" id="qcard-8"><div class="question-text"><span class="question-number">8.</span> Quan algú necessita ajuda, acostumo a oferir-li suport.</div><div class="likert-options" data-q="8"></div></div>
+
+          <h3 style="color: var(--primary); font-size: 1.05rem; margin: 1.5rem 0 0.75rem 0;">Neuroticisme</h3>
+          <div class="question-card" id="qcard-9"><div class="question-text"><span class="question-number">9.</span> Em preocupo fàcilment per les situacions que em poden sortir malament.</div><div class="likert-options" data-q="9"></div></div>
+          <div class="question-card" id="qcard-10"><div class="question-text"><span class="question-number">10.</span> Em costa mantenir la calma quan tinc problemes.</div><div class="likert-options" data-q="10"></div></div>
+
+          <!-- BLOC 2: DEPENDÈNCIA EMOCIONAL -->
+          <div class="survey-section-title" style="margin-top: 2.5rem;">BLOC 2 — DEPENDÈNCIA EMOCIONAL</div>
+
+          <div class="question-card" id="qcard-11"><div class="question-text"><span class="question-number">11.</span> Et preocupa molt que la teva parella et pugui abandonar?</div><div class="likert-options" data-q="11"></div></div>
+          <div class="question-card" id="qcard-12"><div class="question-text"><span class="question-number">12.</span> Et costa estar tranquil/a quan una persona important per a tu no està disponible?</div><div class="likert-options" data-q="12"></div></div>
+          <div class="question-card" id="qcard-13"><div class="question-text"><span class="question-number">13.</span> Et costa prendre decisions sense consultar abans les persones importants per a tu?</div><div class="likert-options" data-q="13"></div></div>
+          <div class="question-card" id="qcard-14"><div class="question-text"><span class="question-number">14.</span> Acostumes a canviar la teva manera d'actuar per adaptar-te al que volen els altres?</div><div class="likert-options" data-q="14"></div></div>
+          <div class="question-card" id="qcard-15"><div class="question-text"><span class="question-number">15.</span> Creus que necessites tenir algú al teu costat per ser feliç?</div><div class="likert-options" data-q="15"></div></div>
+          <div class="question-card" id="qcard-16"><div class="question-text"><span class="question-number">16.</span> Has pensat alguna vegada que no series capaç de superar una situació difícil sense l'ajuda d'una altra persona?</div><div class="likert-options" data-q="16"></div></div>
+          <div class="question-card" id="qcard-17"><div class="question-text"><span class="question-number">17.</span> Et resulta difícil dir que no a les persones que t'importen, encara que no vulguis fer alguna cosa?</div><div class="likert-options" data-q="17"></div></div>
+          <div class="question-card" id="qcard-18"><div class="question-text"><span class="question-number">18.</span> Acostumes a deixar de banda els teus interessos per dedicar més temps als altres?</div><div class="likert-options" data-q="18"></div></div>
+
+          <div style="margin-top: 2rem;">
+            <button type="submit" class="btn btn-primary btn-block" id="btn-enviar-enquesta" style="font-size: 1.15rem; padding: 1rem;">
+              Enviar enquesta
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Pantalla final de gràcies (Secció 8) -->
+      <div class="card" id="card-gracies" style="display: none; text-align: center; padding: 4rem 2rem;">
+        <div style="font-size: 3.5rem; margin-bottom: 1rem;">✨</div>
+        <h1 style="font-size: 2.2rem; font-weight: 800; color: var(--secondary); margin-bottom: 1rem;">
+          Gràcies per participar en l'enquesta
+        </h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem; margin-top: 1rem;">
+          La teva resposta ha estat registrada correctament i de manera totalment anònima.
+        </p>
+        <div style="margin-top: 2rem;">
+          <button class="btn btn-secondary" onclick="navegarA('inici')">Tornar a l'inici</button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- VISTA 3: LOGIN PRIVAT DE L'ADMINISTRADORA -->
+  <!-- ============================================== -->
+  <main class="container" id="vista-login" style="display: none;">
+    <div class="card" style="max-width: 440px; margin: 3rem auto; text-align: center;">
+      <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🔒</div>
+      <h1 class="card-title">Accés privat de l'administradora</h1>
+      <p class="card-subtitle" style="margin-bottom: 1.5rem;">Consulta d'estadístiques, correlacions i dades</p>
+
+      <div id="login-alert" class="alert-error" style="display: none;"></div>
+
+      <form id="form-login">
+        <div style="text-align: left; margin-bottom: 1.25rem;">
+          <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.95rem;">Contrasenya d'administradora</label>
+          <input type="password" id="input-password" class="form-input" placeholder="Introdueix la contrasenya" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Entrar al panell privat</button>
+      </form>
+      <div style="margin-top: 1.5rem;">
+        <button class="btn btn-secondary" style="font-size: 0.85rem; padding: 0.4rem 0.8rem;" onclick="navegarA('inici')">← Tornar a l'inici</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- ============================================== -->
+  <!-- VISTA 4: PANELL PRIVAT D'ADMINISTRACIÓ -->
+  <!-- ============================================== -->
+  <main class="container-wide" id="vista-admin" style="display: none;">
+    <div class="card" style="margin-bottom: 1.5rem; padding: 1.25rem 1.5rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <h2 style="font-size: 1.3rem; font-weight: 700; color: var(--secondary);">Panell d'administració de la recerca</h2>
+          <p style="font-size: 0.85rem; color: var(--text-muted);">Anàlisi estadística basada exclusivament en les dades reals recollides.</p>
+        </div>
+        <div class="btn-group">
+          <button id="btn-sync" class="btn btn-primary">
+            🔄 Sincronitzar dades de Google Sheets
+          </button>
+          <button id="btn-export-csv" class="btn btn-secondary">
+            📥 Descarregar respostes CSV
+          </button>
+          <button id="btn-export-summary" class="btn btn-secondary">
+            📄 Descarregar resum
+          </button>
+          <button id="btn-delete-prompt" class="btn btn-danger">
+            🗑️ Eliminar totes les respostes
+          </button>
+          <button class="btn btn-secondary" onclick="tancarSessio()">
+            Tancar sessió
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Estat buit (Secció 11 & 22) -->
+    <div id="admin-empty-state" class="card" style="text-align: center; padding: 4rem 2rem;">
+      <div style="font-size: 3rem; margin-bottom: 1rem;">📊</div>
+      <h2 style="font-size: 1.8rem; font-weight: 700; color: var(--secondary); margin-bottom: 1rem;">
+        Encara no hi ha respostes
+      </h2>
+      <p style="color: var(--text-muted); max-width: 600px; margin: 0 auto 2rem auto;">
+        Quan els participants completin l'enquesta, fes clic a «Sincronitzar dades» per calcular automàticament totes les mitjanes, correlacions de Spearman i gràfics.
+      </p>
+    </div>
+
+    <!-- Contingut quan hi ha dades -->
+    <div id="admin-data-content" style="display: none;">
+      <!-- Indicadors superiors -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.25rem; margin-bottom: 2rem;">
+        <div class="card" style="text-align: center; padding: 1.5rem; margin: 0;">
+          <div style="font-size: 2.25rem; font-weight: 800; color: var(--primary);" id="stat-total">0</div>
+          <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Total respostes rebudes</div>
+        </div>
+        <div class="card" style="text-align: center; padding: 1.5rem; margin: 0;">
+          <div style="font-size: 2.25rem; font-weight: 800; color: var(--primary);" id="stat-completes">0</div>
+          <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Respostes completes</div>
+        </div>
+        <div class="card" style="text-align: center; padding: 1.5rem; margin: 0;">
+          <div style="font-size: 2.25rem; font-weight: 800; color: var(--primary);" id="stat-utilitzades">0</div>
+          <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Respostes utilitzades (n)</div>
+        </div>
+        <div class="card" style="text-align: center; padding: 1.5rem; margin: 0;">
+          <div style="font-size: 2.25rem; font-weight: 800; color: var(--primary);" id="stat-dep-mitjana">0</div>
+          <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Mitjana Dependència (8-40)</div>
+        </div>
+      </div>
+
+      <!-- Correlacions de Spearman -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Anàlisi de Correlacions de Spearman (OCEAN ↔ Dependència)</h2>
+          <p class="card-subtitle">Càlcul de rangs fraccionaris amb gestió d'empats i prova de significació de dues cues.</p>
+        </div>
+
+        <div class="academic-notice">
+          <strong>Principi metodològic:</strong> L'ordenació per intensitat (|rho|) reflecteix la força de l'associació lineal observada en la mostra. En cap cas suposa un rànquing de personalitats millors o pitjors ni prova causalitat.
+        </div>
+
+        <div class="table-responsive">
+          <table class="academic-table" id="taula-correlacions">
+            <thead>
+              <tr>
+                <th>Factor OCEAN</th>
+                <th>rho de Spearman (&rho;)</th>
+                <th>Valor p (t-Student)</th>
+                <th>Participants (n)</th>
+                <th>Direcció</th>
+                <th>Intensitat</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-top: 1rem;">
+          <div style="background: #f8fafc; border: 1px solid var(--border); padding: 1rem; border-radius: var(--radius-sm);">
+            <strong>Associació més intensa:</strong>
+            <p id="destacat-intensa" style="margin-top: 0.25rem; font-weight: 600;">-</p>
+          </div>
+          <div style="background: #f8fafc; border: 1px solid var(--border); padding: 1rem; border-radius: var(--radius-sm);">
+            <strong>Associació més feble:</strong>
+            <p id="destacat-feble" style="margin-top: 0.25rem; font-weight: 600;">-</p>
+          </div>
+        </div>
+
+        <div style="margin-top: 2rem;">
+          <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--secondary); margin-bottom: 0.75rem;">
+            Gràfic de barres dels coeficients de Spearman (&rho; de -1 a +1)
+          </h3>
+          <div class="chart-container">
+            <canvas id="chart-spearman-bars"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scatter plots -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Gràfics de dispersió (Scatter Plots)</h2>
+          <p class="card-subtitle">Distribució individual dels 5 factors OCEAN respecte a la dependència emocional (8-40).</p>
+        </div>
+        <div class="charts-grid">
+          <div class="chart-card"><h4 style="margin-bottom: 0.5rem;">1. Obertura vs Dependència</h4><div class="chart-container"><canvas id="scatter-obertura"></canvas></div></div>
+          <div class="chart-card"><h4 style="margin-bottom: 0.5rem;">2. Responsabilitat vs Dependència</h4><div class="chart-container"><canvas id="scatter-responsabilitat"></canvas></div></div>
+          <div class="chart-card"><h4 style="margin-bottom: 0.5rem;">3. Extraversió vs Dependència</h4><div class="chart-container"><canvas id="scatter-extraversio"></canvas></div></div>
+          <div class="chart-card"><h4 style="margin-bottom: 0.5rem;">4. Amabilitat vs Dependència</h4><div class="chart-container"><canvas id="scatter-amabilitat"></canvas></div></div>
+          <div class="chart-card" style="grid-column: 1 / -1;"><h4 style="margin-bottom: 0.5rem;">5. Neuroticisme vs Dependència</h4><div class="chart-container"><canvas id="scatter-neuroticisme"></canvas></div></div>
+        </div>
+      </div>
+
+      <!-- Estadístiques descriptives -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Estadístiques Descriptives dels Factors</h2>
+          <p class="card-subtitle">Puntuacions OCEAN (rang 2-10) i Dependència Emocional (rang 8-40).</p>
+        </div>
+        <div class="table-responsive">
+          <table class="academic-table" id="taula-descriptiva">
+            <thead>
+              <tr>
+                <th>Variable / Factor</th>
+                <th>Rang teòric</th>
+                <th>Mitjana</th>
+                <th>Mediana</th>
+                <th>Mínim observat</th>
+                <th>Màxim observat</th>
+                <th>Participants vàlids</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Distribució de les 18 preguntes -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Distribució de Respostes (18 Preguntes)</h2>
+          <p class="card-subtitle">Percentatges i freqüències de cada opció Likert calculats de les dades reals.</p>
+        </div>
+        <div style="margin-bottom: 1rem;">
+          <label style="font-weight: 600; margin-right: 0.5rem;">Selecciona una pregunta:</label>
+          <select id="select-pregunta" class="form-input" style="max-width: 500px; display: inline-block;"></select>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; align-items: center;">
+          <div class="chart-container"><canvas id="chart-pregunta-pie"></canvas></div>
+          <div class="table-responsive" style="margin: 0;">
+            <table class="academic-table" id="taula-pregunta-detall">
+              <thead><tr><th>Opció de resposta</th><th>Recompte</th><th>Percentatge</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Resum interpretatiu escrit -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Resum Acadèmic i Interpretació Automàtica</h2>
+          <p class="card-subtitle">Text formal redactat en català segons els principis metodològics del Treball de Recerca.</p>
+        </div>
+        <div id="text-resum-academic" style="background: #f8fafc; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1.5rem; font-family: inherit; font-size: 0.95rem; line-height: 1.7; white-space: pre-wrap; max-height: 400px; overflow-y: auto;"></div>
+        <div style="margin-top: 1rem;">
+          <button class="btn btn-secondary" onclick="copiarResum()">📋 Copiar resum al porta-retalls</button>
+        </div>
+      </div>
+
+      <!-- Taula anònima -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Taula de Respostes Individuals Anònimes</h2>
+          <p class="card-subtitle">Sense cap identificador personal.</p>
+        </div>
+        <div class="table-responsive" style="max-height: 350px; overflow-y: auto;">
+          <table class="academic-table" id="taula-anonima">
+            <thead>
+              <tr>
+                <th>#</th><th>Data</th>
+                <th>P1</th><th>P2</th><th>P3</th><th>P4</th><th>P5</th><th>P6</th><th>P7</th><th>P8</th><th>P9</th><th>P10</th>
+                <th>P11</th><th>P12</th><th>P13</th><th>P14</th><th>P15</th><th>P16</th><th>P17</th><th>P18</th>
+                <th>Obertura</th><th>Resp.</th><th>Extrav.</th><th>Amab.</th><th>Neurot.</th><th>Dependència</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal eliminació -->
+  <div class="modal-overlay" id="modal-eliminar">
+    <div class="modal-box">
+      <h3 style="color: var(--danger); margin-bottom: 0.75rem;">⚠️ Eliminació permanent de dades</h3>
+      <p style="margin-bottom: 1rem;">Aquesta acció eliminarà permanentment totes les respostes del Google Sheets. Vols continuar?</p>
+      <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem;">Per confirmar, escriu la paraula <strong>ELIMINAR</strong> en majúscules:</p>
+      <input type="text" id="input-confirmar-eliminar" class="form-input" placeholder="Escriu ELIMINAR" style="margin-bottom: 1.25rem;">
+      <div class="btn-group" style="justify-content: flex-end;">
+        <button class="btn btn-secondary" onclick="tancarModalEliminar()">Cancel·lar</button>
+        <button class="btn btn-danger" id="btn-confirmar-eliminar" disabled onclick="executarEliminarDades()">Confirmar eliminació</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="app-footer">
+    <p>Treball de Recerca de Segon de Batxillerat · Enquesta anònima i confidencial</p>
+  </footer>
+
+  <!-- ============================================== -->
+  <!-- LÒGICA JAVASCRIPT COMPLETA -->
+  <!-- ============================================== -->
+  <script>
+    // =========================================================================
+    // CONFIGURACIÓ: URL DEL TEU GOOGLE APPS SCRIPT
+    // =========================================================================
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyNAkVgif0px0hVju2gREoqpkmH7UCpsP4htQlZ5HZGzPvc2eAmonPhTfVsJFDjZuDl/exec"; 
+
+    // Contrasenya de l'administradora (configurable)
+    const ADMIN_PASSWORD = "admin_recerca_2026";
+
+    // Textos de les 18 preguntes
+    const PREGUNTES_TEXT = {
+      p1: "1. M'agrada provar activitats noves i tenir experiències diferents.",
+      p2: "2. M'interessa conèixer idees i maneres de pensar diferents de les meves.",
+      p3: "3. Acostumo a organitzar les meves tasques abans de fer-les.",
+      p4: "4. Compleixo les meves obligacions encara que no em vinguin de gust.",
+      p5: "5. Em sento còmode parlant amb persones que acabo de conèixer.",
+      p6: "6. M'agrada participar en activitats amb moltes persones.",
+      p7: "7. Intento entendre els sentiments de les altres persones.",
+      p8: "8. Quan algú necessita ajuda, acostumo a oferir-li suport.",
+      p9: "9. Em preocupo fàcilment per les situacions que em poden sortir malament.",
+      p10: "10. Em costa mantenir la calma quan tinc problemes.",
+      p11: "11. Et preocupa molt que la teva parella et pugui abandonar?",
+      p12: "12. Et costa estar tranquil/a quan una persona important per a tu no està disponible?",
+      p13: "13. Et costa prendre decisions sense consultar abans les persones importants per a tu?",
+      p14: "14. Acostumes a canviar la teva manera d'actuar per adaptar-te al que volen els altres?",
+      p15: "15. Creus que necessites tenir algú al teu costat per ser feliç?",
+      p16: "16. Has pensat alguna vegada que no series capaç de superar una situació difícil sense l'ajuda d'una altra persona?",
+      p17: "17. Et resulta difícil dir que no a les persones que t'importen, encara que no vulguis fer alguna cosa?",
+      p18: "18. Acostumes a deixar de banda els teus interessos per dedicar més temps als altres?"
+    };
+
+    const LIKERT_OPCIONS = [
+      { val: 1, text: "Gens d'acord" },
+      { val: 2, text: "Poc d'acord" },
+      { val: 3, text: "Ni d'acord ni en desacord" },
+      { val: 4, text: "Bastant d'acord" },
+      { val: 5, text: "Totalment d'acord" }
+    ];
+
+    let dadesRecerca = [];
+    const chartInstances = {};
+
+    function destroyChart(id) {
+      if (chartInstances[id]) {
+        chartInstances[id].destroy();
+        delete chartInstances[id];
+      }
+    }
+
+    // Navegació de vistes
+    function navegarA(vista) {
+      document.getElementById('vista-inici').style.display = 'none';
+      document.getElementById('vista-enquesta').style.display = 'none';
+      document.getElementById('vista-login').style.display = 'none';
+      document.getElementById('vista-admin').style.display = 'none';
+
+      if (vista === 'inici') document.getElementById('vista-inici').style.display = 'block';
+      if (vista === 'enquesta') {
+        document.getElementById('vista-enquesta').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+      if (vista === 'login') {
+        if (sessionStorage.getItem('tdr_admin_logged') === 'true') {
+          navegarA('admin');
+        } else {
+          document.getElementById('vista-login').style.display = 'block';
+        }
+      }
+      if (vista === 'admin') {
+        if (sessionStorage.getItem('tdr_admin_logged') !== 'true') {
+          navegarA('login');
+          return;
+        }
+        document.getElementById('vista-admin').style.display = 'block';
+        if (dadesRecerca.length === 0) carregarDadesGoogleSheets();
+      }
+    }
+
+    // Renderitzar opcions Likert de l'enquesta
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.likert-options').forEach(c => {
+        const q = c.getAttribute('data-q');
+        let html = '';
+        LIKERT_OPCIONS.forEach(opt => {
+          const id = `q${q}_opt${opt.val}`;
+          html += `
+            <div class="likert-option">
+              <input type="radio" id="${id}" name="p${q}" value="${opt.val}">
+              <label for="${id}">
+                <span class="likert-num">${opt.val}</span>
+                <span>${opt.text}</span>
+              </label>
+            </div>
+          `;
+        });
+        c.innerHTML = html;
+      });
+
+      // Gestió del canvi de selecció per actualitzar la barra de progrés
+      document.getElementById('form-enquesta').addEventListener('change', () => {
+        actualitzarProgresEnquesta();
+      });
+
+      // Enviament del formulari d'enquesta
+      document.getElementById('form-enquesta').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const alertBox = document.getElementById('enquesta-alert');
+        alertBox.style.display = 'none';
+        document.querySelectorAll('.question-card').forEach(qc => qc.classList.remove('highlight-missing'));
+
+        const missing = [];
+        const answers = {};
+        for (let i = 1; i <= 18; i++) {
+          const sel = document.querySelector(`input[name="p${i}"]:checked`);
+          if (!sel) {
+            missing.push(i);
+            const card = document.getElementById(`qcard-${i}`);
+            if (card) card.classList.add('highlight-missing');
+          } else {
+            answers[`p${i}`] = parseInt(sel.value, 10);
+          }
+        }
+
+        if (missing.length > 0) {
+          alertBox.style.display = 'block';
+          alertBox.innerHTML = `<strong>Falten respostes per completar!</strong><br>Per favor, revisa: <strong>${missing.map(n => `P${n}`).join(', ')}</strong>.`;
+          const first = document.getElementById(`qcard-${missing[0]}`);
+          if (first) first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          return;
+        }
+
+        const btn = document.getElementById('btn-enviar-enquesta');
+        btn.disabled = true;
+        btn.textContent = "Enviant enquesta...";
+
+        try {
+          if (!GOOGLE_SCRIPT_URL) {
+            // Si encara no ha posat l'enllaç de Google Script, ho simulem a nivell local perquè pugui provar
+            console.warn("GOOGLE_SCRIPT_URL està buit. Segueix la GUIA per posar el teu enllaç de Google Sheets!");
+            guardarRespostaLocal(answers);
+          } else {
+            await fetch(GOOGLE_SCRIPT_URL, {
+              method: 'POST',
+              mode: 'no-cors',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(answers)
+            });
+            guardarRespostaLocal(answers);
+          }
+
+          document.getElementById('card-formulari').style.display = 'none';
+          document.getElementById('card-gracies').style.display = 'block';
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        } catch (err) {
+          alertBox.style.display = 'block';
+          alertBox.textContent = "Error en connectar amb el full de respostes. Si us plau, torna-ho a provar.";
+          btn.disabled = false;
+          btn.textContent = "Enviar enquesta";
+        }
+      });
+
+      // Login
+      document.getElementById('form-login').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const pass = document.getElementById('input-password').value;
+        const alertBox = document.getElementById('login-alert');
+        if (pass === ADMIN_PASSWORD) {
+          sessionStorage.setItem('tdr_admin_logged', 'true');
+          navegarA('admin');
+        } else {
+          alertBox.textContent = "Contrasenya incorrecta.";
+          alertBox.style.display = 'block';
+        }
+      });
+
+      // Doble confirmació eliminar
+      const inputDel = document.getElementById('input-confirmar-eliminar');
+      const btnDelConf = document.getElementById('btn-confirmar-eliminar');
+      inputDel.addEventListener('input', () => {
+        btnDelConf.disabled = inputDel.value.trim() !== 'ELIMINAR';
+      });
+
+      document.getElementById('btn-delete-prompt').addEventListener('click', () => {
+        inputDel.value = '';
+        btnDelConf.disabled = true;
+        document.getElementById('modal-eliminar').classList.add('active');
+      });
+
+      // Botó Sincronitzar
+      document.getElementById('btn-sync').addEventListener('click', () => carregarDadesGoogleSheets());
+
+      // Exportacions
+      document.getElementById('btn-export-csv').addEventListener('click', () => exportarCSV());
+      document.getElementById('btn-export-summary').addEventListener('click', () => exportarResum());
+    });
+
+    function tancarModalEliminar() {
+      document.getElementById('modal-eliminar').classList.remove('active');
+    }
+
+    function actualitzarProgresEnquesta() {
+      let count = 0;
+      for (let i = 1; i <= 18; i++) {
+        if (document.querySelector(`input[name="p${i}"]:checked`)) count++;
+      }
+      const pct = Math.round((count / 18) * 100);
+      document.getElementById('progress-text').textContent = `Progrés: ${count} de 18 preguntes contestades`;
+      document.getElementById('progress-percentage').textContent = `${pct}%`;
+      document.getElementById('progress-fill').style.width = `${pct}%`;
+    }
+
+    function guardarRespostaLocal(answers) {
+      const stored = JSON.parse(localStorage.getItem('tdr_respostes_local') || '[]');
+      const p = [];
+      for (let i = 1; i <= 18; i++) p[i] = answers[`p${i}`];
+
+      const item = {
+        id: stored.length + 1,
+        created_at: new Date().toISOString(),
+        ...answers,
+        score_obertura: p[1] + p[2],
+        score_responsabilitat: p[3] + p[4],
+        score_extraversio: p[5] + p[6],
+        score_amabilitat: p[7] + p[8],
+        score_neuroticisme: p[9] + p[10],
+        score_dependencia: p[11] + p[12] + p[13] + p[14] + p[15] + p[16] + p[17] + p[18]
+      };
+      stored.push(item);
+      localStorage.setItem('tdr_respostes_local', JSON.stringify(stored));
+    }
+
+    // Carregar dades des de Google Sheets
+    async function carregarDadesGoogleSheets() {
+      const btn = document.getElementById('btn-sync');
+      btn.disabled = true;
+      btn.textContent = "Carregant dades...";
+
+      try {
+        if (GOOGLE_SCRIPT_URL) {
+          const res = await fetch(GOOGLE_SCRIPT_URL);
+          if (res.ok) {
+            const data = await res.json();
+            if (Array.isArray(data) && data.length > 0) {
+              dadesRecerca = data;
+            } else {
+              dadesRecerca = JSON.parse(localStorage.getItem('tdr_respostes_local') || '[]');
+            }
+          }
+        } else {
+          dadesRecerca = JSON.parse(localStorage.getItem('tdr_respostes_local') || '[]');
+        }
+      } catch (err) {
+        console.warn("No s'ha pogut obtenir directament de Google Script, mostrant dades de còpia:", err);
+        dadesRecerca = JSON.parse(localStorage.getItem('tdr_respostes_local') || '[]');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "🔄 Sincronitzar dades de Google Sheets";
+        renderitzarPanellAdmin();
+      }
+    }
+
+    function tancarSessio() {
+      sessionStorage.removeItem('tdr_admin_logged');
+      navegarA('inici');
+    }
+
+    // Estadístiques i matemàtiques
+    function mitjana(arr) { return arr.length ? Number((arr.reduce((a,b)=>a+b,0)/arr.length).toFixed(2)) : 0; }
+    function mediana(arr) {
+      if (!arr.length) return 0;
+      const s = [...arr].sort((a,b)=>a-b);
+      const m = Math.floor(s.length/2);
+      return s.length % 2 === 0 ? Number(((s[m-1]+s[m])/2).toFixed(2)) : Number(s[m].toFixed(2));
+    }
+
+    function assignRanks(arr) {
+      const indexed = arr.map((val, idx) => ({ val, idx })).sort((a,b) => a.val - b.val);
+      const ranks = new Array(arr.length);
+      let i = 0;
+      while (i < arr.length) {
+        let j = i;
+        while (j < arr.length && indexed[j].val === indexed[i].val) j++;
+        const avg = ((i + 1) + j) / 2;
+        for (let k = i; k < j; k++) ranks[indexed[k].idx] = avg;
+        i = j;
+      }
+      return ranks;
+    }
+
+    function calcSpearman(x, y) {
+      const n = x.length;
+      if (n < 2) return { rho: 0, pValFormatted: 'N insuficient', absRho: 0, direccio: '-', intensitat: '-' };
+      const rx = assignRanks(x);
+      const ry = assignRanks(y);
+      const mx = rx.reduce((a,b)=>a+b,0)/n;
+      const my = ry.reduce((a,b)=>a+b,0)/n;
+      let num = 0, dx = 0, dy = 0;
+      for (let i = 0; i < n; i++) {
+        num += (rx[i] - mx) * (ry[i] - my);
+        dx += (rx[i] - mx)**2;
+        dy += (ry[i] - my)**2;
+      }
+      const rawRho = Math.sqrt(dx*dy) === 0 ? 0 : num / Math.sqrt(dx*dy);
+      const rho = Number(rawRho.toFixed(3));
+      const absRho = Math.abs(rho);
+
+      let pValFormatted = 'N insuficient';
+      if (n >= 3) {
+        if (absRho >= 0.999) {
+          pValFormatted = 'p < 0.001 (significatiu)';
+        } else {
+          const t = rawRho * Math.sqrt((n - 2) / (1 - rawRho**2));
+          // Aproximació precisa de dues cues
+          const df = n - 2;
+          const pApprox = 2 * (1 - normalCdf(Math.abs(t) * Math.sqrt((df - 0.5) / df)));
+          pValFormatted = pApprox < 0.05 ? `p = ${pApprox.toFixed(3)} (significatiu a 0.05)` : `p = ${pApprox.toFixed(3)} (no significatiu)`;
+        }
+      }
+
+      let direccio = 'Nul·la';
+      if (rho > 0.05) direccio = 'Positiva (augment conjunt)';
+      else if (rho < -0.05) direccio = 'Negativa (tendència inversa)';
+
+      let intensitat = 'Molt feble (|rho| < 0.10)';
+      if (absRho >= 0.50) intensitat = 'Intensa / forta (|rho| >= 0.50)';
+      else if (absRho >= 0.30) intensitat = 'Moderada (0.30 <= |rho| < 0.50)';
+      else if (absRho >= 0.10) intensitat = 'Feble (0.10 <= |rho| < 0.30)';
+
+      return { rho, absRho, pValFormatted, direccio, intensitat, n };
+    }
+
+    function normalCdf(z) {
+      return 0.5 * (1 + Math.sign(z) * Math.sqrt(1 - Math.exp(-2 * z * z / Math.PI)));
+    }
+
+    function calcRegression(x, y) {
+      const n = x.length;
+      if (n < 2) return null;
+      const mx = x.reduce((a,b)=>a+b,0)/n;
+      const my = y.reduce((a,b)=>a+b,0)/n;
+      let num = 0, den = 0;
+      for (let i = 0; i < n; i++) {
+        num += (x[i] - mx) * (y[i] - my);
+        den += (x[i] - mx)**2;
+      }
+      if (den === 0) return null;
+      const slope = num / den;
+      const intercept = my - slope * mx;
+      return { slope: Number(slope.toFixed(3)), intercept: Number(intercept.toFixed(3)) };
+    }
+
+    // Renderitzar panell d'administració
+    function renderitzarPanellAdmin() {
+      const emptyState = document.getElementById('admin-empty-state');
+      const dataContent = document.getElementById('admin-data-content');
+
+      if (!dadesRecerca || dadesRecerca.length === 0) {
+        emptyState.style.display = 'block';
+        dataContent.style.display = 'none';
+        return;
+      }
+
+      emptyState.style.display = 'none';
+      dataContent.style.display = 'block';
+
+      const n = dadesRecerca.length;
+      document.getElementById('stat-total').textContent = n;
+      document.getElementById('stat-completes').textContent = n;
+      document.getElementById('stat-utilitzades').textContent = n;
+
+      const vecO = dadesRecerca.map(r => r.score_obertura);
+      const vecR = dadesRecerca.map(r => r.score_responsabilitat);
+      const vecE = dadesRecerca.map(r => r.score_extraversio);
+      const vecA = dadesRecerca.map(r => r.score_amabilitat);
+      const vecN = dadesRecerca.map(r => r.score_neuroticisme);
+      const vecDep = dadesRecerca.map(r => r.score_dependencia);
+
+      document.getElementById('stat-dep-mitjana').textContent = mitjana(vecDep);
+
+      // Correlacions
+      const corrs = [
+        { factor: "Obertura a l'experiència", ...calcSpearman(vecO, vecDep), key: 'obertura', x: vecO, col: '#2563eb' },
+        { factor: "Responsabilitat", ...calcSpearman(vecR, vecDep), key: 'responsabilitat', x: vecR, col: '#059669' },
+        { factor: "Extraversió", ...calcSpearman(vecE, vecDep), key: 'extraversio', x: vecE, col: '#d97706' },
+        { factor: "Amabilitat", ...calcSpearman(vecA, vecDep), key: 'amabilitat', x: vecA, col: '#7c3aed' },
+        { factor: "Neuroticisme", ...calcSpearman(vecN, vecDep), key: 'neuroticisme', x: vecN, col: '#dc2626' }
+      ];
+
+      const corrsSorted = [...corrs].sort((a,b) => b.absRho - a.absRho);
+
+      // Taula correlacions
+      const tbodyCorr = document.querySelector('#taula-correlacions tbody');
+      tbodyCorr.innerHTML = '';
+      corrsSorted.forEach(c => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>${c.factor}</strong></td>
+          <td style="font-weight: bold; color: ${c.rho >= 0 ? '#1d4ed8':'#dc2626'};">${c.rho >= 0 ? '+':''}${c.rho}</td>
+          <td>${c.pValFormatted}</td>
+          <td>${c.n}</td>
+          <td>${c.direccio}</td>
+          <td><span class="badge-academic">${c.intensitat}</span></td>
+        `;
+        tbodyCorr.appendChild(tr);
+      });
+
+      document.getElementById('destacat-intensa').textContent = `${corrsSorted[0].factor} (|rho| = ${corrsSorted[0].absRho}, rho = ${corrsSorted[0].rho >= 0 ? '+':''}${corrsSorted[0].rho})`;
+      document.getElementById('destacat-feble').textContent = `${corrsSorted[corrsSorted.length-1].factor} (|rho| = ${corrsSorted[corrsSorted.length-1].absRho}, rho = ${corrsSorted[corrsSorted.length-1].rho >= 0 ? '+':''}${corrsSorted[corrsSorted.length-1].rho})`;
+
+      // Gràfic de barres Spearman
+      destroyChart('chart-spearman-bars');
+      chartInstances['chart-spearman-bars'] = new Chart(document.getElementById('chart-spearman-bars').getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels: corrs.map(c => c.factor),
+          datasets: [{
+            label: 'rho de Spearman',
+            data: corrs.map(c => c.rho),
+            backgroundColor: corrs.map(c => c.rho >= 0 ? 'rgba(37, 99, 235, 0.85)' : 'rgba(239, 68, 68, 0.85)'),
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: { min: -1, max: 1, title: { display: true, text: 'rho de Spearman' } }
+          },
+          plugins: { legend: { display: false } }
+        }
+      });
+
+      // Scatter plots
+      corrs.forEach(c => {
+        const id = `scatter-${c.key}`;
+        destroyChart(id);
+        const pts = dadesRecerca.map(r => ({ x: r[`score_${c.key}`], y: r.score_dependencia }));
+        const reg = calcRegression(c.x, vecDep);
+        const datasets = [{
+          label: 'Participant',
+          data: pts,
+          backgroundColor: c.col,
+          pointRadius: 6
+        }];
+        if (reg) {
+          datasets.push({
+            label: `Tendència descriptiva (pendent: ${reg.slope >= 0 ? '+':''}${reg.slope})`,
+            data: [{ x: 2, y: reg.slope * 2 + reg.intercept }, { x: 10, y: reg.slope * 10 + reg.intercept }],
+            type: 'line',
+            borderColor: c.col,
+            borderDash: [5, 5],
+            pointRadius: 0
+          });
+        }
+        chartInstances[id] = new Chart(document.getElementById(id).getContext('2d'), {
+          type: 'scatter',
+          data: { datasets },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: { min: 2, max: 10, title: { display: true, text: `${c.factor} (2-10)` } },
+              y: { min: 8, max: 40, title: { display: true, text: 'Dependència (8-40)' } }
+            }
+          }
+        });
+      });
+
+      // Taula descriptiva
+      const tbodyDesc = document.querySelector('#taula-descriptiva tbody');
+      tbodyDesc.innerHTML = '';
+      const factorsDesc = [
+        { nom: "Obertura a l'experiència", rang: "2 - 10", vec: vecO },
+        { nom: "Responsabilitat", rang: "2 - 10", vec: vecR },
+        { nom: "Extraversió", rang: "2 - 10", vec: vecE },
+        { nom: "Amabilitat", rang: "2 - 10", vec: vecA },
+        { nom: "Neuroticisme", rang: "2 - 10", vec: vecN },
+        { nom: "Dependència emocional", rang: "8 - 40", vec: vecDep }
+      ];
+      factorsDesc.forEach(f => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>${f.nom}</strong></td>
+          <td>${f.rang}</td>
+          <td><strong>${mitjana(f.vec)}</strong></td>
+          <td>${mediana(f.vec)}</td>
+          <td>${Math.min(...f.vec)}</td>
+          <td>${Math.max(...f.vec)}</td>
+          <td>${f.vec.length}</td>
+        `;
+        tbodyDesc.appendChild(tr);
+      });
+
+      // Distribució de preguntes 18
+      inicialitzarSelectPreguntes();
+
+      // Resum escrit
+      generarResumAcademic(n, factorsDesc, corrsSorted);
+
+      // Taula anònima
+      const tbodyAnon = document.querySelector('#taula-anonima tbody');
+      tbodyAnon.innerHTML = '';
+      dadesRecerca.forEach((r, idx) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>#${idx + 1}</strong></td>
+          <td style="font-size:0.8rem; color:var(--text-muted);">${new Date(r.created_at).toLocaleDateString()}</td>
+          <td>${r.p1}</td><td>${r.p2}</td><td>${r.p3}</td><td>${r.p4}</td><td>${r.p5}</td>
+          <td>${r.p6}</td><td>${r.p7}</td><td>${r.p8}</td><td>${r.p9}</td><td>${r.p10}</td>
+          <td>${r.p11}</td><td>${r.p12}</td><td>${r.p13}</td><td>${r.p14}</td><td>${r.p15}</td>
+          <td>${r.p16}</td><td>${r.p17}</td><td>${r.p18}</td>
+          <td>${r.score_obertura}</td><td>${r.score_responsabilitat}</td><td>${r.score_extraversio}</td>
+          <td>${r.score_amabilitat}</td><td>${r.score_neuroticisme}</td>
+          <td><strong style="color:var(--primary);">${r.score_dependencia}</strong></td>
+        `;
+        tbodyAnon.appendChild(tr);
+      });
+    }
+
+    function inicialitzarSelectPreguntes() {
+      const select = document.getElementById('select-pregunta');
+      select.innerHTML = '';
+      for (let i = 1; i <= 18; i++) {
+        const opt = document.createElement('option');
+        opt.value = `p${i}`;
+        opt.textContent = PREGUNTES_TEXT[`p${i}`];
+        select.appendChild(opt);
+      }
+      select.onchange = (e) => pintarPreguntaPie(e.target.value);
+      pintarPreguntaPie('p1');
+    }
+
+    function pintarPreguntaPie(qKey) {
+      destroyChart('chart-pregunta-pie');
+      const counts = [0, 0, 0, 0, 0];
+      dadesRecerca.forEach(r => {
+        const v = parseInt(r[qKey], 10);
+        if (v >= 1 && v <= 5) counts[v - 1]++;
+      });
+      const total = dadesRecerca.length;
+      chartInstances['chart-pregunta-pie'] = new Chart(document.getElementById('chart-pregunta-pie').getContext('2d'), {
+        type: 'doughnut',
+        data: {
+          labels: LIKERT_OPCIONS.map(o => `${o.val}. ${o.text}`),
+          datasets: [{
+            data: counts,
+            backgroundColor: ['#ef4444', '#f97316', '#eab308', '#3b82f6', '#10b981']
+          }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+      });
+
+      const tbody = document.querySelector('#taula-pregunta-detall tbody');
+      tbody.innerHTML = '';
+      LIKERT_OPCIONS.forEach((opt, idx) => {
+        const c = counts[idx];
+        const pct = total ? ((c / total) * 100).toFixed(1) : 0;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td><strong>${opt.val}. ${opt.text}</strong></td><td>${c}</td><td><strong>${pct}%</strong></td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function generarResumAcademic(n, factors, corrs) {
+      const text = [
+        `RESUM DE L'ANÀLISI EXPLORATÒRIA`,
+        `Treball de Recerca de Batxillerat: Model OCEAN i Dependència Emocional`,
+        `Data: ${new Date().toLocaleDateString('ca-ES')} | Mostra: ${n} participants`,
+        ``,
+        `1. DESCRIPCIÓ DE LA MOSTRA I MITJANES:`,
+        `L'estudi compta amb un total de ${n} participants amb les 18 preguntes completes.`,
+        `Puntuacions mitjanes dels factors OCEAN (escala 2-10):`,
+        `  - Obertura a l'experiència: ${mitjana(factors[0].vec)}`,
+        `  - Responsabilitat: ${mitjana(factors[1].vec)}`,
+        `  - Extraversió: ${mitjana(factors[2].vec)}`,
+        `  - Amabilitat: ${mitjana(factors[3].vec)}`,
+        `  - Neuroticisme: ${mitjana(factors[4].vec)}`,
+        `Puntuació mitjana de dependència emocional (escala 8-40): ${mitjana(factors[5].vec)} punts.`,
+        ``,
+        `2. ASSOCIACIONS OBSERVADES (COEFICIENT DE SPEARMAN):`,
+        ...corrs.map(c => `  - ${c.factor}: rho = ${c.rho >= 0 ? '+':''}${c.rho} | ${c.pValFormatted} | ${c.direccio} | Intensitat: ${c.intensitat}`),
+        ``,
+        `Associació més intensa: ${corrs[0].factor} (|rho| = ${corrs[0].absRho}).`,
+        `Associació més feble: ${corrs[corrs.length-1].factor} (|rho| = ${corrs[corrs.length-1].absRho}).`,
+        ``,
+        `3. CONSIDERACIONS I LIMITACIONS METODOLÒGIQUES CRÍTICS:`,
+        `- CORRELACIÓ NO IMPLICA CAUSALITAT: en cap cas es pot afirmar que cap factor causi dependència emocional ni a la inversa.`,
+        `- CARÀCTER EXPLORATORI: No és un test psicològic clínic ni té finalitats de diagnòstic. No s'estableixen categories clíniques.`,
+        `- LIMITACIÓ DE MOSTRA: Mostra d'estudi amb n = ${n}. Els resultats no són extrapolables directament al conjunt de la població general.`
+      ].join('\n');
+
+      document.getElementById('text-resum-academic').textContent = text;
+    }
+
+    function copiarResum() {
+      const t = document.getElementById('text-resum-academic').textContent;
+      navigator.clipboard.writeText(t).then(() => alert("Resum copiat al porta-retalls!"));
+    }
+
+    function exportarCSV() {
+      let csv = '\uFEFFParticipant,Data,P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12,P13,P14,P15,P16,P17,P18,Obertura,Responsabilitat,Extraversio,Amabilitat,Neuroticisme,Dependencia_Emocional\n';
+      dadesRecerca.forEach((r, idx) => {
+        csv += [
+          idx + 1, `"${r.created_at}"`,
+          r.p1, r.p2, r.p3, r.p4, r.p5, r.p6, r.p7, r.p8, r.p9, r.p10,
+          r.p11, r.p12, r.p13, r.p14, r.p15, r.p16, r.p17, r.p18,
+          r.score_obertura, r.score_responsabilitat, r.score_extraversio, r.score_amabilitat, r.score_neuroticisme, r.score_dependencia
+        ].join(',') + '\n';
+      });
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'respostes_tdr_ocean_dependencia.csv';
+      a.click();
+    }
+
+    function exportarResum() {
+      const t = document.getElementById('text-resum-academic').textContent;
+      const blob = new Blob([t], { type: 'text/plain;charset=utf-8;' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'resum_recerca_ocean_dependencia.txt';
+      a.click();
+    }
+
+    async function executarEliminarDades() {
+      const btn = document.getElementById('btn-confirmar-eliminar');
+      btn.disabled = true;
+      btn.textContent = "Eliminant...";
+
+      if (GOOGLE_SCRIPT_URL) {
+        try {
+          await fetch(`${GOOGLE_SCRIPT_URL}?action=clear&pass=${ADMIN_PASSWORD}`);
+        } catch (e) {}
+      }
+      localStorage.removeItem('tdr_respostes_local');
+      dadesRecerca = [];
+      tancarModalEliminar();
+      btn.textContent = "Confirmar eliminació";
+      renderitzarPanellAdmin();
+      alert("Totes les respostes han estat eliminades.");
+    }
+  </script>
+</body>
+</html>
